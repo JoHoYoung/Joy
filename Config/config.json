@@ -1,0 +1,7 @@
+{
+  "HOST":"localhost",
+  "PORT":8080,
+  "WORLDNUM": 10,
+  "USER_PER_ROOM": 8,
+  "MESSAGE_BUFFER_SIZE": 256
+}
