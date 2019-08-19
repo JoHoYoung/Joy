@@ -1,9 +1,9 @@
-package World
+package world
 
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
-	"joy/Config"
+	"joy/config"
 	"log"
 	"sync"
 )
@@ -13,7 +13,7 @@ import (
 // 2. world를 할당해서 월드에넣고, 클라이언트의 월드에 해당월드를 넣음.
 // 3. 메세지가오면 월드로 보냄
 
-var config = Config.Get();
+var conf = config.Get();
 var Mutex = &sync.Mutex{}
 var pivot = 0
 
@@ -41,7 +41,7 @@ func (c *Client) WriteLoop() {
 func (c *Client) AllocateWorld(){
 	Mutex.Lock()
 	count := 0
-	for len(Rooms[pivot].ClientMap) >= config.USER_PER_ROOM || Rooms[pivot].Running {
+	for len(Rooms[pivot].ClientMap) >= conf.USER_PER_ROOM || Rooms[pivot].Running {
 		// Out logic
 		count ++
 		pivot ++
@@ -61,7 +61,7 @@ func (c *Client) AllocateWorld(){
 func NewClient(conn *websocket.Conn, u *User){
 	c := &Client{
 		Conn: conn,
-		Send: make(chan *Message, config.MESSAGE_BUFFER_SIZE),
+		Send: make(chan *Message, conf.MESSAGE_BUFFER_SIZE),
 		User: u,
 	}
 	c.AllocateWorld()

@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"joy/World"
+	"joy/world"
 	"log"
 )
 
@@ -15,6 +15,6 @@ func Connect(c *gin.Context) {
 		log.Print("upgrade:", err)
 		return
 	}
-	user := World.User{Name:"test"}
-	World.NewClient(conn, &user)
+	user := world.User{Name:"test"}
+	world.NewClient(conn, &user)
 }

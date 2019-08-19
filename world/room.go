@@ -1,4 +1,4 @@
-package World
+package world
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 // 각 클라이언트가 자기 월드를.
 // 월드가 클라이언트를 갖고있자.
 // 클라이언트가 메세지를 받으면.
-// | World |
+// | world |
 // 1. 클라이언트가 메세지 받음.
 // 2. 클라이언트가 자신이 속한 월드 채널에 메세지 날림.
 // 3. 메세지를 받은 월드가 자신에 속한 클라이언트들에게 브로드 캐스팅.
@@ -29,7 +29,7 @@ func newRoom(id int) *Room{
 	r.ClientMap = make(map[*Client]bool)
 	r.ChanEnter = make(chan *Client)
 	r.ChanLeave = make(chan *Client)
-	r.Broadcast = make(chan *Message, config.MESSAGE_BUFFER_SIZE * config.USER_PER_ROOM)
+	r.Broadcast = make(chan *Message, conf.MESSAGE_BUFFER_SIZE * conf.USER_PER_ROOM)
 	r.Id = id
 	return &r
 }
@@ -69,8 +69,7 @@ func  (r *Room) Init(){
 
 func GenWord(){
 	i:=0
-	fmt.Println(config)
-	for i < config.WORLDNUM {
+	for i < conf.WORLDNUM {
 		r := newRoom(i)
 		Rooms = append(Rooms, *r)
 		i++

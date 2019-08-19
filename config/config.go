@@ -1,4 +1,4 @@
-package Config
+package config
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ type Configuration struct {
 var Config Configuration
 
 func Get() *Configuration {
-	file, _ := os.Open("Config/config.json")
+	file, _ := os.Open("config/config.json")
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&Config)

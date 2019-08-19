@@ -2,14 +2,14 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"joy/Config"
+	"joy/config"
 	"joy/v1/api"
 	"net/http"
 	"strconv"
 )
 
 
-var config = Config.Get()
+var conf = config.Get()
 func Start() {
 	r := gin.Default()
 	r.LoadHTMLGlob("template/*")
@@ -20,8 +20,8 @@ func Start() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK,"template/index.tmpl",gin.H{
-			"addr": "ws://" + config.HOST + ":" + strconv.Itoa(config.PORT) + "/echo",})
+			"addr": "ws://" + conf.HOST + ":" + strconv.Itoa(conf.PORT) + "/echo",})
 	})
-	r.Run(config.HOST + ":" + strconv.Itoa(config.PORT)) // listen and serve on 0.0.0.0:8080
+	r.Run(conf.HOST + ":" + strconv.Itoa(conf.PORT)) // listen and serve on 0.0.0.0:8080
 
 }
