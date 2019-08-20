@@ -11,6 +11,7 @@ type Configuration struct {
 	WORLDNUM int
 	USER_PER_ROOM int
 	MESSAGE_BUFFER_SIZE int
+	PLAY_TIME_SEC int
 }
 
 var Config Configuration

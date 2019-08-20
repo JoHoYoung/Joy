@@ -17,8 +17,6 @@ var conf = config.Get();
 var Mutex = &sync.Mutex{}
 var pivot = 0
 
-var Clients []*Client
-
 type Client struct {
 	Conn *websocket.Conn // 웹소켓 커넥션
 	Send chan *Message   // 메시지 전송용 채널
@@ -37,11 +35,10 @@ func (c *Client) WriteLoop() {
 	}
 }
 
-
 func (c *Client) AllocateWorld(){
 	Mutex.Lock()
 	count := 0
-	for len(Rooms[pivot].ClientMap) >= conf.USER_PER_ROOM || Rooms[pivot].Running {
+	for len(Rooms[pivot].ClientMap) > conf.USER_PER_ROOM || Rooms[pivot].Running {
 		// Out logic
 		count ++
 		pivot ++
@@ -70,7 +67,8 @@ func NewClient(conn *websocket.Conn, u *User){
 }
 
 func (c *Client) Delete(){
-	delete(c.Room.ClientMap, c)
+	NumberOfUser--
+	c.Conn.Close()
 	close(c.Send)
 }
 
@@ -85,16 +83,15 @@ func (c *Client) Read() (*Message, error) {
 }
 
 func (c *Client) ReadLoop() {
-
 	defer func() {
 		c.Room.ChanLeave <- c
 		c.Conn.Close()
 	}()
-
 	for {
 		m, err := c.Read()
 		if err != nil { // 연결이 끊긴 클라이언트는 배열에서 제거..
 			log.Println("read message error: ", err)
+			c.Room.ChanLeave <- c
 			break
 		}
 		fmt.Println("BROAD")
