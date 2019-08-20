@@ -2,7 +2,7 @@
   "HOST":"localhost",
   "PORT":8080,
   "WORLDNUM": 10,
-  "USER_PER_ROOM": 1,
+  "USER_PER_ROOM": 4,
   "MESSAGE_BUFFER_SIZE": 256,
-  "PLAY_TIME_SEC": 120
+  "PLAY_TIME_SEC": 100
 }

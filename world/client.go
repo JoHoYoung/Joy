@@ -2,6 +2,7 @@ package world
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"joy/config"
 	"log"
@@ -22,11 +23,14 @@ type Client struct {
 	Send chan *Message   // 메시지 전송용 채널
 	Room *Room
 	User   *User  // 현재 접속한 사용자 정보
+	Id string
 }
 
-func (c *Client) Write(m *Message) error {
+func (c *Client) Write(m *Message) {
 	log.Println("write to websocket:", m)
-	return c.Conn.WriteJSON(m)
+	if _, ok := c.Room.ClientMap[c]; ok {
+		c.Conn.WriteJSON(m)
+	}
 }
 
 func (c *Client) WriteLoop() {
@@ -42,6 +46,9 @@ func (c *Client) AllocateWorld(){
 		// Out logic
 		count ++
 		pivot ++
+		if pivot == len(Rooms[pivot].ClientMap){
+			pivot = 0;
+		}
 		fmt.Println("count", count)
 		if(count == len(Rooms)){
 			c.Conn.Close()
@@ -56,18 +63,22 @@ func (c *Client) AllocateWorld(){
 }
 
 func NewClient(conn *websocket.Conn, u *User){
+	uid, _ := uuid.NewUUID();
 	c := &Client{
 		Conn: conn,
 		Send: make(chan *Message, conf.MESSAGE_BUFFER_SIZE),
 		User: u,
+		Id: uid.String(),
 	}
 	c.AllocateWorld()
 	go c.ReadLoop()
 	go c.WriteLoop()
+	c.Write(&Message{Type:"ENTER",Msg:c.Id})
 }
 
 func (c *Client) Delete(){
 	NumberOfUser--
+	fmt.Println("DELETE USER")
 	c.Conn.Close()
 	close(c.Send)
 }
@@ -83,10 +94,6 @@ func (c *Client) Read() (*Message, error) {
 }
 
 func (c *Client) ReadLoop() {
-	defer func() {
-		c.Room.ChanLeave <- c
-		c.Conn.Close()
-	}()
 	for {
 		m, err := c.Read()
 		if err != nil { // 연결이 끊긴 클라이언트는 배열에서 제거..

@@ -18,6 +18,7 @@ var Rooms []Room
 var NumberOfUser = 0
 
 type Room struct {
+	Players []string
 	ClientMap map[*Client]bool
 	ChanEnter chan *Client
 	ChanLeave chan *Client
@@ -52,7 +53,8 @@ func (r *Room) gameEnd(){
 }
 
 func (r *Room) delUser(c *Client){
-	if _, ok := r.ClientMap[c]; ok {
+	if _, ok := r.ClientMap[c]; ok{
+		fmt.Println("DELETE USER")
 		delete(r.ClientMap, c)
 		c.Delete()
 	}
@@ -61,21 +63,27 @@ func (r *Room) delUser(c *Client){
 func (r *Room) run(){
 	for {
 		select{
-		case <-r.ChanEnter:
+		case  <-r.ChanEnter:
 			if len(r.ClientMap) == conf.USER_PER_ROOM{
 				fmt.Println("START")
 				r.ChanStart <- 1
 			}
 			NumberOfUser++
 		case c := <-r.ChanLeave:
-			r.delUser(c)
+			fmt.Println("LEAVE CLIENT")
+			if _, ok := r.ClientMap[c]; ok {
+				r.delUser(c)
+			}
 		case Message := <-r.Broadcast:
 			r.broadCast(Message)
 		case <- r.ChanStart:
-			fmt.Println("START CHAN")
 			r.Running = true
-			r.broadCast(&Message{Type:"START"})
-			fmt.Println("START CHAN")
+			fmt.Println(len(r.ClientMap))
+			players := make([]string, 0)
+			for client, _ := range r.ClientMap{
+				players = append(players, client.Id)
+			}
+			r.broadCast(&Message{Type:"START",Players:players})
 			ChanTTL := time.NewTimer(time.Second * time.Duration(conf.PLAY_TIME_SEC))
 			go func(){
 				<-ChanTTL.C
@@ -89,8 +97,10 @@ func (r *Room) run(){
 func  (r *Room) Init(){
 	for c := range r.ClientMap{
 		c.Delete()
+		delete(r.ClientMap, c)
 	}
-	r.Running = false;
+	r.Players = nil
+	r.Running = false
 }
 
 func GenWord(){

@@ -27,5 +27,6 @@ type Message struct{
 	Player map[string]Player `json:"Player"`
 	Type string `json:"type"`
 	CS []CS `json:"CS"`
+	Players []string
 }
 
