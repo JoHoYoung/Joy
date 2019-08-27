@@ -13,7 +13,7 @@ import (
 // 2. world를 할당해서 월드에넣고, 클라이언트의 월드에 해당월드를 넣음.
 // 3. 메세지가오면 월드로 보냄
 
-var conf = config.Get();
+var conf = config.Get()
 
 var Mutex = &sync.Mutex{}
 var pivot = 0
@@ -23,6 +23,18 @@ type Client struct {
 	Send chan *Message   // 메시지 전송용 채널
 	Room *Room
 	Id   string
+}
+
+func NewClient(conn *websocket.Conn) {
+	uid, _ := uuid.NewUUID()
+	c := &Client{
+		Conn: conn,
+		Send: make(chan *Message, conf.MESSAGE_BUFFER_SIZE),
+		Id:   uid.String(),
+	}
+	c.AllocateWorld()
+	go c.ReadLoop()
+	go c.WriteLoop()
 }
 
 func (c *Client) Write(m *Message) {
@@ -51,24 +63,9 @@ func (c *Client) AllocateWorld() {
 			break
 		}
 	}
-	Rooms[pivot].Players[c.Id] = NewPlayer(c.Id)
-	Rooms[pivot].ClientMap[c] = true
 	c.Room = Rooms[pivot]
 	c.Room.ChanEnter <- c
 	Mutex.Unlock()
-}
-
-func NewClient(conn *websocket.Conn) {
-	uid, _ := uuid.NewUUID()
-	c := &Client{
-		Conn: conn,
-		Send: make(chan *Message, conf.MESSAGE_BUFFER_SIZE),
-		Id:   uid.String(),
-	}
-	c.AllocateWorld()
-	go c.ReadLoop()
-	go c.WriteLoop()
-	c.Send <- &Message{Type: conf.TYPE.ENTER, Player: *c.Room.Players[c.Id]}
 }
 
 func (c *Client) Delete() {

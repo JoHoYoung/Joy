@@ -43,6 +43,7 @@ func newRoom(id int) *Room{
 }
 
 func (r *Room) broadCast(m *Message){
+	fmt.Println(m.Player)
 	for client, exist := range r.ClientMap{
 		if(exist){
 			client.Send <- m
@@ -76,7 +77,7 @@ func (r *Room) dataEvent(){
 	ticker := time.NewTicker(time.Second * time.Duration(conf.SEND_TIME_SEC))
 	for{
 		<- ticker.C
-		fmt.Println("BROAD")
+		r.simulate()
 		if !r.Running{
 			break
 		}
@@ -95,11 +96,13 @@ func (r *Room) run(){
 	for {
 		select {
 		case c := <-r.ChanEnter:
+			r.ClientMap[c] = true
+			r.Players[c.Id] = NewPlayer(c.Id)
+			c.Send <- &Message{Type: conf.TYPE.ENTER, Player: c.Room.Players[c.Id]}
+			NumberOfUser++
 			if len(r.ClientMap) == conf.USER_PER_ROOM {
 				r.ChanStart <- 1
 			}
-			r.Players[c.Id] = &Player{ID: c.Id}
-			NumberOfUser++
 		case c := <-r.ChanLeave:
 			fmt.Println("Client leave, ID : ", c.Id)
 			if _, ok := r.ClientMap[c]; ok {
@@ -124,8 +127,10 @@ func (r *Room)simulate(){
 			if M.ID != S.ID{
 				for i,cs := range S.CS{
 					if collision(*M, cs){
+						upper := len(M.CS)
 						M.CS = append(M.CS, S.CS[i:]...)
 						S.CS = S.CS[0:i]
+						M.GetCS = len(M.CS) - upper
 						break
 					}
 				}
@@ -146,12 +151,8 @@ func (r *Room) Init(){
 func (r *Room) processMessage(m Message){
 	if m.Type == conf.TYPE.START{
 		if _, ok := r.Players[m.Player.ID]; ok{
-			r.Players[m.Player.ID] = &m.Player
+			r.Players[m.Player.ID] = m.Player
 		}
-	}
-
-	if m.Type == conf.TYPE.PLAY{
-		r.simulate()
 	}
 }
 

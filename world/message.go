@@ -11,7 +11,7 @@ package world
 type Message struct{
 	Msg string `json:"msg,omitempty"`
 	Type int `json:"type,omitempty"` //ENTER
-	Player Player `json:"player,omitempty"`
+	Player *Player `json:"player,omitempty"`
 	Score map[string]int `json:"score,omitempty"`
 	Players map[string]*Player `json:"players,omitempty"`
 }
