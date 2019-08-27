@@ -17,7 +17,7 @@ func Start() {
 	r.GET("/echo", Connect)
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK,"template/index.tmpl",gin.H{
-			"addr": "ws://" + "54.180.101.50" + ":" + strconv.Itoa(conf.PORT) + "/echo",})
+			"addr": "ws://" + "localhost" + ":" + strconv.Itoa(conf.PORT) + "/echo",})
 	})
 	r.Run(":" + strconv.Itoa(conf.PORT)) // listen and serve on 0.0.0.0:8080
 }

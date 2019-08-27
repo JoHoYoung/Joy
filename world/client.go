@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"joy/config"
-	"log"
 	"sync"
 )
 
@@ -15,6 +14,7 @@ import (
 // 3. 메세지가오면 월드로 보냄
 
 var conf = config.Get();
+
 var Mutex = &sync.Mutex{}
 var pivot = 0
 
@@ -22,12 +22,10 @@ type Client struct {
 	Conn *websocket.Conn // 웹소켓 커넥션
 	Send chan *Message   // 메시지 전송용 채널
 	Room *Room
-	User   *User  // 현재 접속한 사용자 정보
-	Id string
+	Id   string
 }
 
 func (c *Client) Write(m *Message) {
-	log.Println("write to websocket:", m)
 	if _, ok := c.Room.ClientMap[c]; ok {
 		c.Conn.WriteJSON(m)
 	}
@@ -39,57 +37,52 @@ func (c *Client) WriteLoop() {
 	}
 }
 
-func (c *Client) AllocateWorld(){
+func (c *Client) AllocateWorld() {
 	Mutex.Lock()
 	count := 0
-	for len(Rooms[pivot].ClientMap) > conf.USER_PER_ROOM || Rooms[pivot].Running {
-		// Out logic
+	for (len(Rooms[pivot].ClientMap) >= conf.USER_PER_ROOM || Rooms[pivot].Running == true) {
 		count ++
 		pivot ++
-		if pivot == len(Rooms[pivot].ClientMap){
-			pivot = 0;
+		if pivot == len(Rooms) {
+			pivot = 0
 		}
-		fmt.Println("count", count)
-		if(count == len(Rooms)){
+		if (count == len(Rooms)) {
 			c.Conn.Close()
-			break;
+			break
 		}
 	}
-	fmt.Println("IN",pivot)
+	Rooms[pivot].Players[c.Id] = NewPlayer(c.Id)
 	Rooms[pivot].ClientMap[c] = true
-	c.Room = &Rooms[pivot];
+	c.Room = Rooms[pivot]
 	c.Room.ChanEnter <- c
 	Mutex.Unlock()
 }
 
-func NewClient(conn *websocket.Conn, u *User){
-	uid, _ := uuid.NewUUID();
+func NewClient(conn *websocket.Conn) {
+	uid, _ := uuid.NewUUID()
 	c := &Client{
 		Conn: conn,
 		Send: make(chan *Message, conf.MESSAGE_BUFFER_SIZE),
-		User: u,
-		Id: uid.String(),
+		Id:   uid.String(),
 	}
 	c.AllocateWorld()
 	go c.ReadLoop()
 	go c.WriteLoop()
-	c.Write(&Message{Type:"ENTER",Msg:c.Id})
+	c.Send <- &Message{Type: conf.TYPE.ENTER, Player: *c.Room.Players[c.Id]}
 }
 
-func (c *Client) Delete(){
+func (c *Client) Delete() {
 	NumberOfUser--
-	fmt.Println("DELETE USER")
 	c.Conn.Close()
+	fmt.Println("DELETE user, Id :", c.Id)
 	close(c.Send)
 }
 
 func (c *Client) Read() (*Message, error) {
 	var msg *Message
 	if err := c.Conn.ReadJSON(&msg); err != nil {
-		fmt.Println("ERRR")
 		return nil, err
 	}
-	log.Println("read from websocket:", msg)
 	return msg, nil
 }
 
@@ -97,11 +90,10 @@ func (c *Client) ReadLoop() {
 	for {
 		m, err := c.Read()
 		if err != nil { // 연결이 끊긴 클라이언트는 배열에서 제거..
-			log.Println("read message error: ", err)
+			fmt.Println(err)
 			c.Room.ChanLeave <- c
 			break
 		}
-		fmt.Println("BROAD")
-		c.Room.Broadcast <- m
+		c.Room.processMessage(*m)
 	}
 }

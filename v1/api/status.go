@@ -6,15 +6,6 @@ import (
 	"net/http"
 )
 
-
-/*
-{
-	user:
-	Rooms: [
-	]
-}
- */
-
 func Status(c *gin.Context) {
 	runningRooms := []int{}
 	for _, room := range world.Rooms{

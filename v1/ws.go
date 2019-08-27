@@ -17,6 +17,5 @@ func Connect(c *gin.Context) {
 		log.Print("upgrade:", err)
 		return
 	}
-	user := world.User{Name:"test"}
-	world.NewClient(conn, &user)
+	world.NewClient(conn)
 }

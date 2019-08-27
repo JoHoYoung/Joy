@@ -38,7 +38,16 @@ window.addEventListener("load", function(evt) {
             return false;
         }
         print("SEND: " + input.value);
-		let msg = JSON.stringify({msg:input.value})
+		let msg = JSON.stringify({player: {
+                                     id: "07824812-c8a4-11e9-b178-acde48001122",
+                                     x: 123,
+                                     y: 123,
+                                     dir: 4211,
+                                     cs: [],
+                                     score: 20,
+                                     team: 5
+                                   },
+                                   type:601})
 		console.log(msg)
         ws.send(msg);
         return false;

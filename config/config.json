@@ -1,8 +1,20 @@
 {
-  "HOST":"localhost",
-  "PORT":8080,
+  "HOST": "localhost",
+  "PORT": 8080,
   "WORLDNUM": 10,
-  "USER_PER_ROOM": 4,
+  "USER_PER_ROOM": 2,
   "MESSAGE_BUFFER_SIZE": 256,
-  "PLAY_TIME_SEC": 100
+  "PLAY_TIME_SEC": 10,
+  "SEND_TIME_SEC": 2,
+  "REGEN_TIME_SEC": 10,
+  "TYPE": {
+    "ENTER": 600,
+    "START": 601,
+    "END": 602,
+    "LEAVE": 603,
+    "PLAY": 701,
+    "REGEN": 702,
+    "STEAL": 703,
+    "IN": 704
+  }
 }

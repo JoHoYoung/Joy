@@ -8,12 +8,11 @@ package main
 // 한명한명 올때마다 락걸고  +1 할당하고 .. 느려질거같은데
 
 import (
-	"joy/world"
 	"joy/v1"
+	"joy/world"
 )
 
 func main() {
 	world.GenWord()
 	v1.Start()
 }
-
