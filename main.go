@@ -8,11 +8,17 @@ package main
 // 한명한명 올때마다 락걸고  +1 할당하고 .. 느려질거같은데
 
 import (
+	"fmt"
+	"joy/log"
 	"joy/v1"
 	"joy/world"
+	"os"
 )
 
 func main() {
+	fmt.Println(os.Args[1])
+	logger := log.GetLogger(os.Args[1])
+	logger.Info("HIHI")
 	world.GenWord()
 	v1.Start()
 }

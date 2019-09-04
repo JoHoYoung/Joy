@@ -34,7 +34,6 @@ func Get() *Configuration {
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&Config)
-	fmt.Println(Config)
 	if err != nil {
 		fmt.Println("error:", err)
 	}

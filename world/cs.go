@@ -15,6 +15,7 @@ func newCS() *CS{
 
 
 func collision(player Player, cs CS) bool{
+
 	playerWidth := 5
 	playerHeight := 5
 

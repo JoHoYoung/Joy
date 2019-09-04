@@ -50,7 +50,10 @@ func (c *Client) WriteLoop() {
 }
 
 func (c *Client) AllocateWorld() {
+
 	Mutex.Lock()
+	defer Mutex.Unlock()
+
 	count := 0
 	for (len(Rooms[pivot].ClientMap) >= conf.USER_PER_ROOM || Rooms[pivot].Running == true) {
 		count ++
@@ -65,7 +68,6 @@ func (c *Client) AllocateWorld() {
 	}
 	c.Room = Rooms[pivot]
 	c.Room.ChanEnter <- c
-	Mutex.Unlock()
 }
 
 func (c *Client) Delete() {

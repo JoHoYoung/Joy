@@ -43,7 +43,6 @@ func newRoom(id int) *Room{
 }
 
 func (r *Room) broadCast(m *Message){
-	fmt.Println(m.Player)
 	for client, exist := range r.ClientMap{
 		if(exist){
 			client.Send <- m
@@ -112,7 +111,7 @@ func (r *Room) run(){
 			r.broadCast(Message)
 		case <-r.ChanStart:
 			r.Running = true
-			r.broadCast(&Message{Type: conf.TYPE.START, Players: r.Players})
+			r.broadCast(&Message{Type: conf.TYPE.START, Players: r.Players, Score:r.GetScore()})
 			go r.dataEvent()
 			go r.regenEvent()
 			go r.endEvent()
@@ -148,10 +147,24 @@ func (r *Room) Init(){
 	r.Running = false
 }
 
+func (r *Room) GetScore() map[string]int{
+	result := make(map[string]int,10)
+	for _, c := range r.Players {
+		result[c.ID] = c.Score
+	}
+	return result
+}
+
 func (r *Room) processMessage(m Message){
 	if m.Type == conf.TYPE.START{
 		if _, ok := r.Players[m.Player.ID]; ok{
 			r.Players[m.Player.ID] = m.Player
+		}
+	}
+	if m.Type == conf.TYPE.IN{
+		if _, ok := r.Players[m.Player.ID]; ok{
+			r.Players[m.Player.ID].Score += m.Player.GetCS
+			r.Players[m.Player.ID].GetCS = 0
 		}
 	}
 }
