@@ -115,3 +115,59 @@ func (r *Room) run(){
 	}
 }
 ```
+
+### 동기화
+* 실시간 게임 이기 떄문에 동기화 문제를 해결해야함
+* 각 클라이언트에서 cocos2D 물리엔진으로 충돌판정을 하면 동기화문제가 있을 수 있다고 판단
+* 서버에서 AABB를 판단
+```
+func collision(player Player, cs CS) bool{
+
+	playerWidth := 5
+	playerHeight := 5
+
+	csWidth := 1
+	csHeight := 1
+
+	PlayerMinX := player.X - playerWidth
+	PlayerMaxX := player.X + playerWidth
+	PlayerMaxY := player.Y + playerHeight
+	PlayerMinY := player.Y - playerHeight
+
+	CSMinX := cs.X - csWidth
+	CSMaxX := cs.X + csWidth
+	CSMaxY := cs.Y + csHeight
+	CSMinY := cs.Y - csHeight
+
+	if PlayerMaxX < CSMinX|| PlayerMinX > CSMaxX {
+		return false
+	}
+
+	if PlayerMaxY < CSMinY || PlayerMinY > CSMaxY {
+		return false
+	}
+	return true
+}
+
+
+func (r *Room)simulate(){
+	fmt.Println("SIMULATE")
+	for _, M :=  range r.Players{
+		for _, S := range r.Players{
+			if M.ID != S.ID{
+				for i,cs := range S.CS{
+					if collision(*M, cs){
+						upper := len(M.CS)
+						M.CS = append(M.CS, S.CS[i:]...)
+						S.CS = S.CS[0:i]
+						M.GetCS = len(M.CS) - upper
+						break
+					}
+				}
+			}
+		}
+	}
+}
+
+```
+* 60 fps를 기준으로 서버에서 AABB로 충돌을 판정, 특정 타임틱마다 같은 충돌 판정 결과 즉 같은 데이터를 동시에 뿌려줌
