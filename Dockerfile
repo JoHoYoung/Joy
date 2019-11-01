@@ -7,4 +7,3 @@ RUN dep ensure
 RUN go build
 EXPOSE 8080
 CMD ["./joy"]
-

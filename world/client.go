@@ -27,7 +27,7 @@ type Client struct {
 
 func NewClient(conn *websocket.Conn) {
 	uid, _ := uuid.NewUUID()
-	c := &Client{
+	var c = &Client{
 		Conn: conn,
 		Send: make(chan *Message, conf.MESSAGE_BUFFER_SIZE),
 		Id:   uid.String(),
