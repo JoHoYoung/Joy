@@ -1,5 +1,6 @@
 ### JOY 
-Websocket game
+#### WebSocket io Games made with Golang and coke2D. Each user eats a neutral object on the map and attaches it to his tail, and when he enters his camp, he can score as many points as he eats. Users can intercept a tail that is worn by another user by hitting the tail of another
+* * *
 #### BackEnd : Go(gorilla + gin) | FrontEnd : Cocos2D 
 
 ### 클라이언트 ( Socket )접속
